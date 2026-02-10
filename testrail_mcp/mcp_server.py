@@ -104,16 +104,26 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_case(case_id)
         
-        @self.tool("get_cases", description="Get all test cases for a project/suite")
-        def get_cases(project_id: int, suite_id: Optional[int] = None) -> List[Dict]:
+        @self.tool("get_cases", description="Get all test cases for a project/suite with pagination")
+        def get_cases(
+            project_id: int, 
+            suite_id: Optional[int] = None,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None
+        ) -> Dict:
             """
-            Get all test cases for a project/suite.
+            Get all test cases for a project/suite with pagination support.
             
             Args:
                 project_id: The ID of the project
                 suite_id: The ID of the test suite (optional)
+                limit: Maximum number of test cases to return per page (optional, default 250)
+                offset: Number of test cases to skip for pagination (optional, default 0)
+            
+            Returns:
+                Dict with 'cases' array and pagination info ('offset', 'limit', 'size', '_links')
             """
-            return self.client.get_cases(project_id, suite_id)
+            return self.client.get_cases(project_id, suite_id, limit, offset)
         
         @self.tool("add_case", description="Add a new test case")
         def add_case(
