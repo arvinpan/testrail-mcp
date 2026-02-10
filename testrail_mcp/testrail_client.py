@@ -191,10 +191,12 @@ class TestRailClient:
         """Get a specific section"""
         return self._send_request('GET', f'get_section/{section_id}')
 
-    def get_sections(self, project_id: int, suite_id:Optional[int] = None, params:Optional[Dict] = None) -> Dict:
+    def get_sections(self, project_id: int, suite_id:Optional[int] = None) -> List[Dict]:
         """Get all sections for a project"""
-        query_params = {**params, "suite_id": suite_id} if suite_id else params
-        return self._send_request('GET', f'get_sections/{project_id}',{params : query_params})
+        uri = f'get_sections/{project_id}'
+        if suite_id:
+            uri += f'&suite_id={suite_id}'
+        return self._send_request('GET', uri)
 
     def add_section(self, project_id:int, data:Dict) -> Dict:
         """Add a new section"""
