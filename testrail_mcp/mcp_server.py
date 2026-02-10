@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.3.0")
+        super().__init__(name="TestRail MCP Server", version="0.3.1")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -839,10 +839,10 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_results(test_id)
         
-        @self.tool("add_result", description="Add a new test result")
+        @self.tool("add_result", description="Add a new test result or assign a test")
         def add_result(
             test_id: int,
-            status_id: int,
+            status_id: Optional[int] = None,
             comment: Optional[str] = None,
             version: Optional[str] = None,
             elapsed: Optional[str] = None,
@@ -850,20 +850,22 @@ class TestRailMCPServer(FastMCP):
             assignedto_id: Optional[int] = None
         ) -> Dict:
             """
-            Add a new test result.
+            Add a new test result, comment, or assign a test to a user.
             
             Args:
                 test_id: The ID of the test
-                status_id: The ID of the test status
+                status_id: The ID of the test status (1=Passed, 2=Blocked, 4=Retest, 5=Failed) (optional)
                 comment: The comment / description for the test result (optional)
                 version: The version or build you tested against (optional)
                 elapsed: The time it took to execute the test, e.g. '30s' or '1m 45s' (optional)
                 defects: A comma-separated list of defects to link to the test result (optional)
                 assignedto_id: The ID of a user the test should be assigned to (optional)
+                
+            Note: You must provide at least one of: status_id, comment, or assignedto_id
             """
-            data = {
-                'status_id': status_id
-            }
+            data = {}
+            if status_id is not None:
+                data['status_id'] = status_id
             if comment is not None:
                 data['comment'] = comment
             if version is not None:
