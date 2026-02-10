@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.1.7")
+        super().__init__(name="TestRail MCP Server", version="0.1.8")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -839,6 +839,47 @@ class TestRailMCPServer(FastMCP):
                 dataset_id: The ID of the dataset
             """
             return self.client.delete_dataset(dataset_id)
+        
+        # Users
+        @self.tool("get_users", description="Get all users or users for a specific project")
+        def get_users(project_id: Optional[int] = None) -> List[Dict]:
+            """
+            Get all users or users for a specific project.
+            
+            Args:
+                project_id: Optional project ID to get users for a specific project.
+                           If not provided, returns all users in TestRail.
+            
+            Returns:
+                List of user objects containing id, name, email, is_active, and role information.
+            """
+            return self.client.get_users(project_id)
+        
+        @self.tool("get_user", description="Get a user by ID")
+        def get_user(user_id: int) -> Dict:
+            """
+            Get a user by ID.
+            
+            Args:
+                user_id: The ID of the user
+            
+            Returns:
+                User object containing id, name, email, is_active, and role information.
+            """
+            return self.client.get_user(user_id)
+        
+        @self.tool("get_user_by_email", description="Get a user by email address")
+        def get_user_by_email(email: str) -> Dict:
+            """
+            Get a user by email address.
+            
+            Args:
+                email: The email address of the user
+            
+            Returns:
+                User object containing id, name, email, is_active, and role information.
+            """
+            return self.client.get_user_by_email(email)
     
     def _register_resources(self):
         """Register all TestRail resources with the MCP server."""
@@ -901,4 +942,14 @@ class TestRailMCPServer(FastMCP):
                 dataset_id: The ID of the dataset
             """
             return self.client.get_dataset(dataset_id)
+        
+        @self.resource("testrail://user/{user_id}")
+        def get_user_resource(user_id: int) -> Dict:
+            """
+            Get a user by ID.
+            
+            Args:
+                user_id: The ID of the user
+            """
+            return self.client.get_user(user_id)
 

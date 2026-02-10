@@ -268,3 +268,27 @@ class TestRailClient:
     def delete_plan_entry(self, plan_id: int, entry_id: str) -> Dict:
         """Delete a test run (entry) from a test plan."""
         return self._send_request('POST', f'delete_plan_entry/{plan_id}/{entry_id}')
+
+    # Users API
+    def get_users(self, project_id: Optional[int] = None) -> List[Dict]:
+        """
+        Get all users or users for a specific project.
+        
+        Args:
+            project_id: Optional project ID to get users for a specific project
+            
+        Returns:
+            List of user objects
+        """
+        uri = 'get_users'
+        if project_id:
+            uri += f'/{project_id}'
+        return self._send_request('GET', uri)
+    
+    def get_user(self, user_id: int) -> Dict:
+        """Get a user by ID."""
+        return self._send_request('GET', f'get_user/{user_id}')
+    
+    def get_user_by_email(self, email: str) -> Dict:
+        """Get a user by email address."""
+        return self._send_request('GET', f'get_user_by_email&email={email}')
