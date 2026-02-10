@@ -143,7 +143,10 @@ class TestRailMCPServer(FastMCP):
             custom_steps: Optional[str] = None,
             custom_expected: Optional[str] = None,
             custom_steps_separated: Optional[List[Dict[str, str]]] = None,
-            steps_separated: Optional[List[Dict[str, str]]] = None
+            steps_separated: Optional[List[Dict[str, str]]] = None,
+            custom_automation_type: Optional[int] = None,
+            custom_status: Optional[int] = None,
+            custom_preconds: Optional[str] = None
         ) -> Dict:
             """
             Add a new test case.
@@ -168,6 +171,9 @@ class TestRailMCPServer(FastMCP):
                     - expected: The text contents of the "Expected Result" field
                     - additional_info: The text contents of the "Additional Info" field
                     - refs: Reference information for the "References" field
+                custom_automation_type: Automation type (1=Candidate, 2=Automated, etc.)
+                custom_status: Test status (1=Active, 3=Draft, etc.)
+                custom_preconds: Preconditions in HTML format
             """
             data = {'title': title}
             if type_id is not None:
@@ -188,6 +194,12 @@ class TestRailMCPServer(FastMCP):
                 data['custom_steps'] = custom_steps
             if custom_expected is not None:
                 data['custom_expected'] = custom_expected
+            if custom_automation_type is not None:
+                data['custom_automation_type'] = custom_automation_type
+            if custom_status is not None:
+                data['custom_status'] = custom_status
+            if custom_preconds is not None:
+                data['custom_preconds'] = custom_preconds
             return self.client.add_case(section_id, data)
         
         @self.tool("update_case", description="Update an existing test case")
@@ -202,7 +214,10 @@ class TestRailMCPServer(FastMCP):
             custom_steps: Optional[str] = None,
             custom_expected: Optional[str] = None,
             custom_steps_separated: Optional[List[Dict[str, str]]] = None,
-            steps_separated: Optional[List[Dict[str, str]]] = None
+            steps_separated: Optional[List[Dict[str, str]]] = None,
+            custom_automation_type: Optional[int] = None,
+            custom_status: Optional[int] = None,
+            custom_preconds: Optional[str] = None
         ) -> Dict:
             """
             Update an existing test case.
@@ -226,6 +241,9 @@ class TestRailMCPServer(FastMCP):
                     - expected: The text contents of the "Expected Result" field
                     - additional_info: The text contents of the "Additional Info" field
                     - refs: Reference information for the "References" field
+                custom_automation_type: Automation type (1=Candidate, 2=Automated, etc.)
+                custom_status: Test status (1=Active, 3=Draft, etc.)
+                custom_preconds: Preconditions in HTML format
             """
             data = {}
             if title is not None:
@@ -248,6 +266,12 @@ class TestRailMCPServer(FastMCP):
                 data['custom_steps'] = custom_steps
             if custom_expected is not None:
                 data['custom_expected'] = custom_expected
+            if custom_automation_type is not None:
+                data['custom_automation_type'] = custom_automation_type
+            if custom_status is not None:
+                data['custom_status'] = custom_status
+            if custom_preconds is not None:
+                data['custom_preconds'] = custom_preconds
             return self.client.update_case(case_id, data)
         
         @self.tool("delete_case", description="Delete a test case")
