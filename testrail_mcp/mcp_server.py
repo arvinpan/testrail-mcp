@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.1.9")
+        super().__init__(name="TestRail MCP Server", version="0.2.0")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -523,6 +523,33 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_tests(run_id)
         
+        # Milestone tools
+        @self.tool("get_milestones", description="Get all milestones for a project")
+        def get_milestones(project_id: int) -> List[Dict]:
+            """
+            Get all milestones for a project.
+            
+            Args:
+                project_id: The ID of the project
+                
+            Returns:
+                List of milestone objects containing id, name, description, due dates, etc.
+            """
+            return self.client.get_milestones(project_id)
+        
+        @self.tool("get_milestone", description="Get a milestone by ID")
+        def get_milestone(milestone_id: int) -> Dict:
+            """
+            Get a milestone by ID.
+            
+            Args:
+                milestone_id: The ID of the milestone
+                
+            Returns:
+                Milestone object containing id, name, description, due dates, etc.
+            """
+            return self.client.get_milestone(milestone_id)
+        
         # Plan tools
         @self.tool("get_plan", description="Get a test plan by ID")
         def get_plan(plan_id: int) -> Dict:
@@ -534,12 +561,13 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_plan(plan_id)
         
-        @self.tool("get_plans", description="Get all test plans for a project with pagination")
+        @self.tool("get_plans", description="Get all test plans for a project with pagination and filtering")
         def get_plans(
             project_id: int, 
             limit: Optional[int] = None,
             offset: Optional[int] = None,
-            is_completed: Optional[int] = None
+            is_completed: Optional[int] = None,
+            milestone_name: Optional[str] = None
         ) -> Dict:
             """
             Get all test plans for a project with pagination and filtering.
@@ -549,11 +577,42 @@ class TestRailMCPServer(FastMCP):
                 limit: Optional limit for number of plans to return (default 250)
                 offset: Optional offset for pagination  
                 is_completed: Optional filter by completion status (1=completed, 0=active)
+                milestone_name: Optional filter by milestone name (case-insensitive partial match)
                 
             Returns:
                 Dictionary containing plans list and pagination metadata (offset, limit, size, _links)
             """
-            return self.client.get_plans(project_id, limit=limit, offset=offset, is_completed=is_completed)
+            milestone_id = None
+            
+            # If milestone_name is provided, look it up
+            if milestone_name:
+                milestones = self.client.get_milestones(project_id)
+                milestone_name_lower = milestone_name.lower()
+                
+                # Try exact match first
+                for m in milestones:
+                    if m['name'].lower() == milestone_name_lower:
+                        milestone_id = m['id']
+                        break
+                
+                # If no exact match, try partial match
+                if milestone_id is None:
+                    for m in milestones:
+                        if milestone_name_lower in m['name'].lower():
+                            milestone_id = m['id']
+                            break
+                
+                # If still no match, return empty result
+                if milestone_id is None:
+                    return {
+                        'offset': 0,
+                        'limit': limit or 250,
+                        'size': 0,
+                        '_links': {'next': None, 'prev': None},
+                        'plans': []
+                    }
+            
+            return self.client.get_plans(project_id, limit=limit, offset=offset, is_completed=is_completed, milestone_id=milestone_id)
         
         @self.tool("add_plan", description="Add a new test plan")
         def add_plan(
