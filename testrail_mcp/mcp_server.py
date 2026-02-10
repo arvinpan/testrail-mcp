@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.1.6")
+        super().__init__(name="TestRail MCP Server", version="0.1.7")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -509,6 +509,19 @@ class TestRailMCPServer(FastMCP):
                 run_id: The ID of the test run
             """
             return self.client.delete_run(run_id)
+        
+        @self.tool("get_tests", description="Get all tests for a test run")
+        def get_tests(run_id: int) -> List[Dict]:
+            """
+            Get all tests for a test run.
+            
+            Args:
+                run_id: The ID of the test run
+                
+            Returns:
+                List of test objects containing test details including case_id, status, assignee, etc.
+            """
+            return self.client.get_tests(run_id)
         
         # Plan tools
         @self.tool("get_plan", description="Get a test plan by ID")
