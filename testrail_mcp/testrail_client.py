@@ -237,9 +237,32 @@ class TestRailClient:
         """Get a test plan by ID."""
         return self._send_request('GET', f'get_plan/{plan_id}')
     
-    def get_plans(self, project_id: int) -> List[Dict]:
-        """Get all test plans for a project."""
-        return self._send_request('GET', f'get_plans/{project_id}')
+    def get_plans(self, project_id: int, limit: Optional[int] = None, offset: Optional[int] = None, is_completed: Optional[int] = None) -> Dict:
+        """
+        Get all test plans for a project with pagination support.
+        
+        Args:
+            project_id: The ID of the project
+            limit: Optional limit for number of plans to return (default 250)
+            offset: Optional offset for pagination
+            is_completed: Optional filter by completion status (1=completed, 0=active)
+            
+        Returns:
+            Dictionary containing plans list and pagination metadata
+        """
+        uri = f'get_plans/{project_id}'
+        params = []
+        if limit is not None:
+            params.append(f'limit={limit}')
+        if offset is not None:
+            params.append(f'offset={offset}')
+        if is_completed is not None:
+            params.append(f'is_completed={is_completed}')
+        
+        if params:
+            uri += '&' + '&'.join(params)
+        
+        return self._send_request('GET', uri)
     
     def add_plan(self, project_id: int, data: Dict) -> Dict:
         """Add a new test plan."""

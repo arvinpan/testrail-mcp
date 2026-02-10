@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.1.8")
+        super().__init__(name="TestRail MCP Server", version="0.1.9")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -534,15 +534,26 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_plan(plan_id)
         
-        @self.tool("get_plans", description="Get all test plans for a project")
-        def get_plans(project_id: int) -> List[Dict]:
+        @self.tool("get_plans", description="Get all test plans for a project with pagination")
+        def get_plans(
+            project_id: int, 
+            limit: Optional[int] = None,
+            offset: Optional[int] = None,
+            is_completed: Optional[int] = None
+        ) -> Dict:
             """
-            Get all test plans for a project.
+            Get all test plans for a project with pagination and filtering.
             
             Args:
                 project_id: The ID of the project
+                limit: Optional limit for number of plans to return (default 250)
+                offset: Optional offset for pagination  
+                is_completed: Optional filter by completion status (1=completed, 0=active)
+                
+            Returns:
+                Dictionary containing plans list and pagination metadata (offset, limit, size, _links)
             """
-            return self.client.get_plans(project_id)
+            return self.client.get_plans(project_id, limit=limit, offset=offset, is_completed=is_completed)
         
         @self.tool("add_plan", description="Add a new test plan")
         def add_plan(
