@@ -79,12 +79,14 @@ class TestRailClient:
         """Get a test case by ID."""
         return self._send_request('GET', f'get_case/{case_id}')
     
-    def get_cases(self, project_id: int, suite_id: Optional[int] = None, limit: Optional[int] = None, offset: Optional[int] = None) -> Dict:
-        """Get all test cases for a project/suite with pagination support."""
+    def get_cases(self, project_id: int, suite_id: Optional[int] = None, section_id: Optional[int] = None, limit: Optional[int] = None, offset: Optional[int] = None) -> Dict:
+        """Get all test cases for a project/suite/section with pagination support."""
         uri = f'get_cases/{project_id}'
         params = []
         if suite_id:
             params.append(f'suite_id={suite_id}')
+        if section_id:
+            params.append(f'section_id={section_id}')
         if limit:
             params.append(f'limit={limit}')
         if offset:
