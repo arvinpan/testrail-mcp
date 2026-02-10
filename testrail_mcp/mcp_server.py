@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.2.0")
+        super().__init__(name="TestRail MCP Server", version="0.3.0")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -522,6 +522,45 @@ class TestRailMCPServer(FastMCP):
                 List of test objects containing test details including case_id, status, assignee, etc.
             """
             return self.client.get_tests(run_id)
+        
+        @self.tool("update_test", description="Update an individual test within a run")
+        def update_test(
+            test_id: int,
+            assignedto_id: Optional[int] = None
+        ) -> Dict:
+            """
+            Update an individual test within a run (e.g., assign to a user).
+            
+            Args:
+                test_id: The ID of the test to update
+                assignedto_id: The ID of the user to assign the test to
+                
+            Returns:
+                Updated test object
+            """
+            data = {}
+            if assignedto_id is not None:
+                data['assignedto_id'] = assignedto_id
+            
+            return self.client.update_test(test_id, data)
+        
+        @self.tool("update_tests", description="Update multiple tests in a run at once")
+        def update_tests(
+            run_id: int,
+            test_assignments: List[Dict]
+        ) -> List[Dict]:
+            """
+            Update multiple tests in a run at once (e.g., bulk assign tests to users).
+            
+            Args:
+                run_id: The ID of the test run
+                test_assignments: List of dicts, each with 'test_id' and 'assignedto_id'
+                    Example: [{'test_id': 123, 'assignedto_id': 2}, {'test_id': 124, 'assignedto_id': 3}]
+                
+            Returns:
+                List of updated test objects
+            """
+            return self.client.update_tests(run_id, test_assignments)
         
         # Milestone tools
         @self.tool("get_milestones", description="Get all milestones for a project")

@@ -159,6 +159,32 @@ class TestRailClient:
         """Get all tests for a test run."""
         return self._send_request('GET', f'get_tests/{run_id}')
     
+    def update_test(self, test_id: int, data: Dict) -> Dict:
+        """
+        Update an individual test within a run.
+        
+        Args:
+            test_id: The ID of the test
+            data: Dictionary containing fields to update (e.g., assignedto_id)
+            
+        Returns:
+            Updated test object
+        """
+        return self._send_request('POST', f'update_test/{test_id}', data)
+    
+    def update_tests(self, run_id: int, test_updates: List[Dict]) -> List[Dict]:
+        """
+        Update multiple tests in a run at once.
+        
+        Args:
+            run_id: The ID of the test run
+            test_updates: List of dicts with 'test_id' and update fields (e.g., assignedto_id)
+            
+        Returns:
+            List of updated test objects
+        """
+        return self._send_request('POST', f'update_tests/{run_id}', {'tests': test_updates})
+    
     # Results API
     def get_results(self, test_id: int) -> List[Dict]:
         """Get all results for a test."""
