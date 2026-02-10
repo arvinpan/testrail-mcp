@@ -227,3 +227,40 @@ class TestRailClient:
     def move_section(self, section_id:int, data: Dict) -> Dict:
         """Move a section to a different parent or position"""
         return self._send_request('POST', f'move_section/{section_id}', data)
+
+    # Plans API
+    def get_plan(self, plan_id: int) -> Dict:
+        """Get a test plan by ID."""
+        return self._send_request('GET', f'get_plan/{plan_id}')
+    
+    def get_plans(self, project_id: int) -> List[Dict]:
+        """Get all test plans for a project."""
+        return self._send_request('GET', f'get_plans/{project_id}')
+    
+    def add_plan(self, project_id: int, data: Dict) -> Dict:
+        """Add a new test plan."""
+        return self._send_request('POST', f'add_plan/{project_id}', data)
+    
+    def update_plan(self, plan_id: int, data: Dict) -> Dict:
+        """Update an existing test plan."""
+        return self._send_request('POST', f'update_plan/{plan_id}', data)
+    
+    def close_plan(self, plan_id: int) -> Dict:
+        """Close a test plan."""
+        return self._send_request('POST', f'close_plan/{plan_id}')
+    
+    def delete_plan(self, plan_id: int) -> Dict:
+        """Delete a test plan."""
+        return self._send_request('POST', f'delete_plan/{plan_id}')
+    
+    def add_plan_entry(self, plan_id: int, data: Dict) -> Dict:
+        """Add a test run (entry) to an existing test plan."""
+        return self._send_request('POST', f'add_plan_entry/{plan_id}', data)
+    
+    def update_plan_entry(self, plan_id: int, entry_id: str, data: Dict) -> Dict:
+        """Update a test run (entry) in a test plan."""
+        return self._send_request('POST', f'update_plan_entry/{plan_id}/{entry_id}', data)
+    
+    def delete_plan_entry(self, plan_id: int, entry_id: str) -> Dict:
+        """Delete a test run (entry) from a test plan."""
+        return self._send_request('POST', f'delete_plan_entry/{plan_id}/{entry_id}')

@@ -12,6 +12,7 @@ A Model Context Protocol (MCP) server for TestRail that allows interaction with 
   - Cases
   - **Sections** (get, list, add, update, delete, move)
   - Runs
+  - **Plans** (get, list, add, update, close, delete, add/update/delete entries)
   - Results
   - Datasets
 - Full support for the Model Context Protocol

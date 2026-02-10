@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.1.3")
+        super().__init__(name="TestRail MCP Server", version="0.1.6")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
@@ -510,6 +510,202 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.delete_run(run_id)
         
+        # Plan tools
+        @self.tool("get_plan", description="Get a test plan by ID")
+        def get_plan(plan_id: int) -> Dict:
+            """
+            Get a test plan by ID.
+            
+            Args:
+                plan_id: The ID of the test plan
+            """
+            return self.client.get_plan(plan_id)
+        
+        @self.tool("get_plans", description="Get all test plans for a project")
+        def get_plans(project_id: int) -> List[Dict]:
+            """
+            Get all test plans for a project.
+            
+            Args:
+                project_id: The ID of the project
+            """
+            return self.client.get_plans(project_id)
+        
+        @self.tool("add_plan", description="Add a new test plan")
+        def add_plan(
+            project_id: int,
+            name: str,
+            description: Optional[str] = None,
+            milestone_id: Optional[int] = None,
+            entries: Optional[List[Dict]] = None
+        ) -> Dict:
+            """
+            Add a new test plan.
+            
+            Args:
+                project_id: The ID of the project
+                name: The name of the test plan
+                description: The description of the test plan (optional)
+                milestone_id: The ID of the milestone to link to the plan (optional)
+                entries: An array of objects describing the test runs of the plan (optional)
+                    Each entry should contain:
+                    - suite_id: The ID of the test suite for the entry
+                    - name: The name of the test run (optional)
+                    - description: The description of the test run (optional)
+                    - assignedto_id: The ID of the user to assign the test run to (optional)
+                    - include_all: True to include all test cases of the suite (optional)
+                    - case_ids: An array of case IDs for custom case selection (optional)
+                    - config_ids: An array of configuration IDs for the run (optional)
+                    - runs: An array of test run configurations for multi-config entries (optional)
+            """
+            data = {'name': name}
+            if description is not None:
+                data['description'] = description
+            if milestone_id is not None:
+                data['milestone_id'] = milestone_id
+            if entries is not None:
+                data['entries'] = entries
+            return self.client.add_plan(project_id, data)
+        
+        @self.tool("update_plan", description="Update an existing test plan")
+        def update_plan(
+            plan_id: int,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            milestone_id: Optional[int] = None
+        ) -> Dict:
+            """
+            Update an existing test plan.
+            
+            Args:
+                plan_id: The ID of the test plan
+                name: The name of the test plan (optional)
+                description: The description of the test plan (optional)
+                milestone_id: The ID of the milestone to link to the plan (optional)
+            """
+            data = {}
+            if name is not None:
+                data['name'] = name
+            if description is not None:
+                data['description'] = description
+            if milestone_id is not None:
+                data['milestone_id'] = milestone_id
+            return self.client.update_plan(plan_id, data)
+        
+        @self.tool("close_plan", description="Close an existing test plan")
+        def close_plan(plan_id: int) -> Dict:
+            """
+            Close an existing test plan.
+            
+            Args:
+                plan_id: The ID of the test plan
+            """
+            return self.client.close_plan(plan_id)
+        
+        @self.tool("delete_plan", description="Delete a test plan")
+        def delete_plan(plan_id: int) -> Dict:
+            """
+            Delete a test plan.
+            
+            Args:
+                plan_id: The ID of the test plan
+            """
+            return self.client.delete_plan(plan_id)
+        
+        @self.tool("add_plan_entry", description="Add a test run to an existing test plan")
+        def add_plan_entry(
+            plan_id: int,
+            suite_id: int,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            assignedto_id: Optional[int] = None,
+            include_all: Optional[bool] = None,
+            case_ids: Optional[List[int]] = None,
+            config_ids: Optional[List[int]] = None,
+            runs: Optional[List[Dict]] = None
+        ) -> Dict:
+            """
+            Add a test run (entry) to an existing test plan.
+            
+            Args:
+                plan_id: The ID of the test plan
+                suite_id: The ID of the test suite for the entry
+                name: The name of the test run (optional)
+                description: The description of the test run (optional)
+                assignedto_id: The ID of the user to assign the test run to (optional)
+                include_all: True to include all test cases of the suite (optional)
+                case_ids: An array of case IDs for custom case selection (optional)
+                config_ids: An array of configuration IDs for the run (optional)
+                runs: An array of test run configurations for multi-config entries (optional)
+                    Each run should contain:
+                    - include_all: True to include all test cases (optional)
+                    - case_ids: Array of case IDs (optional)
+                    - assignedto_id: User ID to assign to (optional)
+                    - config_ids: Array of configuration IDs (optional)
+            """
+            data = {'suite_id': suite_id}
+            if name is not None:
+                data['name'] = name
+            if description is not None:
+                data['description'] = description
+            if assignedto_id is not None:
+                data['assignedto_id'] = assignedto_id
+            if include_all is not None:
+                data['include_all'] = include_all
+            if case_ids is not None:
+                data['case_ids'] = case_ids
+            if config_ids is not None:
+                data['config_ids'] = config_ids
+            if runs is not None:
+                data['runs'] = runs
+            return self.client.add_plan_entry(plan_id, data)
+        
+        @self.tool("update_plan_entry", description="Update a test run in a test plan")
+        def update_plan_entry(
+            plan_id: int,
+            entry_id: str,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            assignedto_id: Optional[int] = None,
+            include_all: Optional[bool] = None,
+            case_ids: Optional[List[int]] = None
+        ) -> Dict:
+            """
+            Update a test run (entry) in a test plan.
+            
+            Args:
+                plan_id: The ID of the test plan
+                entry_id: The ID of the plan entry (test run)
+                name: The name of the test run (optional)
+                description: The description of the test run (optional)
+                assignedto_id: The ID of the user to assign the test run to (optional)
+                include_all: True to include all test cases of the suite (optional)
+                case_ids: An array of case IDs for custom case selection (optional)
+            """
+            data = {}
+            if name is not None:
+                data['name'] = name
+            if description is not None:
+                data['description'] = description
+            if assignedto_id is not None:
+                data['assignedto_id'] = assignedto_id
+            if include_all is not None:
+                data['include_all'] = include_all
+            if case_ids is not None:
+                data['case_ids'] = case_ids
+            return self.client.update_plan_entry(plan_id, entry_id, data)
+        
+        @self.tool("delete_plan_entry", description="Delete a test run from a test plan")
+        def delete_plan_entry(plan_id: int, entry_id: str) -> Dict:
+            """
+            Delete a test run (entry) from a test plan.
+            
+            Args:
+                plan_id: The ID of the test plan
+                entry_id: The ID of the plan entry (test run) to delete
+            """
+            return self.client.delete_plan_entry(plan_id, entry_id)
+        
         # Results tools
         @self.tool("get_results", description="Get all test results for a test")
         def get_results(test_id: int) -> List[Dict]:
@@ -662,6 +858,16 @@ class TestRailMCPServer(FastMCP):
                 run_id: The ID of the test run
             """
             return self.client.get_run(run_id)
+        
+        @self.resource("testrail://plan/{plan_id}")
+        def get_plan_resource(plan_id: int) -> Dict:
+            """
+            Get a test plan by ID.
+            
+            Args:
+                plan_id: The ID of the test plan
+            """
+            return self.client.get_plan(plan_id)
         
         @self.resource("testrail://results/{test_id}")
         def get_results_resource(test_id: int) -> List[Dict]:
