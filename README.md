@@ -10,6 +10,7 @@ A Model Context Protocol (MCP) server for TestRail that allows interaction with 
 - Access to TestRail entities:
   - Projects
   - Cases
+  - **Sections** (get, list, add, update, delete, move)
   - Runs
   - Results
   - Datasets
@@ -30,10 +31,20 @@ To install testrail-mcp for Claude Desktop automatically via [Smithery](https://
 npx -y @smithery/cli install @sker65/testrail-mcp --client claude
 ```
 
+### Installing from GitHub (Instawork Fork with Sections Support)
+
+Install directly from the Instawork fork using `uvx`:
+
+```bash
+uvx --from git+https://github.com/Instawork/testrail-mcp.git testrail-mcp
+```
+
+Or configure in Cursor/Claude Desktop (see Configuration section below).
+
 ### Manual Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/testrail-mcp.git
+   git clone https://github.com/Instawork/testrail-mcp.git
    cd testrail-mcp
    ```
 
@@ -112,19 +123,44 @@ In Claude Desktop, add a new server with the following configuration:
 
 #### Cursor
 
-In Cursor, add a new custom tool with the following configuration:
+In Cursor, add the TestRail MCP server to your MCP settings (Cursor Settings > Features > Model Context Protocol).
+
+**Option 1: Install from Instawork GitHub Fork (with Sections support)**
 
 ```json
 {
-  "name": "TestRail MCP",
-  "command": "uvx",
-  "args": [
-    "testrail-mcp"
-  ],
-  "env": {
-    "TESTRAIL_URL": "https://your-instance.testrail.io",
-    "TESTRAIL_USERNAME": "your-email@example.com",
-    "TESTRAIL_API_KEY": "your-api-key"
+  "mcpServers": {
+    "testrail": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/Instawork/testrail-mcp.git",
+        "testrail-mcp"
+      ],
+      "env": {
+        "TESTRAIL_URL": "https://your-instance.testrail.io",
+        "TESTRAIL_USERNAME": "your-email@example.com",
+        "TESTRAIL_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+**Option 2: Install from PyPI (original version)**
+
+```json
+{
+  "mcpServers": {
+    "testrail": {
+      "command": "uvx",
+      "args": ["testrail-mcp"],
+      "env": {
+        "TESTRAIL_URL": "https://your-instance.testrail.io",
+        "TESTRAIL_USERNAME": "your-email@example.com",
+        "TESTRAIL_API_KEY": "your-api-key"
+      }
+    }
   }
 }
 ```
