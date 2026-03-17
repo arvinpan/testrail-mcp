@@ -353,3 +353,32 @@ class TestRailClient:
     def get_user_by_email(self, email: str) -> Dict:
         """Get a user by email address."""
         return self._send_request('GET', f'get_user_by_email&email={email}')
+
+    # Labels API
+    def get_labels(self, limit: Optional[int] = None, offset: Optional[int] = None) -> Dict:
+        """Get all labels with pagination support."""
+        uri = 'get_labels'
+        params = []
+        if limit is not None:
+            params.append(f'limit={limit}')
+        if offset is not None:
+            params.append(f'offset={offset}')
+        if params:
+            uri += '&' + '&'.join(params)
+        return self._send_request('GET', uri)
+
+    def get_label(self, label_id: int) -> Dict:
+        """Get a label by ID."""
+        return self._send_request('GET', f'get_label/{label_id}')
+
+    def add_label(self, data: Dict) -> Dict:
+        """Add a new label."""
+        return self._send_request('POST', 'add_label', data)
+
+    def update_label(self, label_id: int, data: Dict) -> Dict:
+        """Update an existing label."""
+        return self._send_request('POST', f'update_label/{label_id}', data)
+
+    def delete_label(self, label_id: int) -> Dict:
+        """Delete a label."""
+        return self._send_request('POST', f'delete_label/{label_id}')

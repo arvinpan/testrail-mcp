@@ -146,11 +146,12 @@ class TestRailMCPServer(FastMCP):
             steps_separated: Optional[List[Dict[str, str]]] = None,
             custom_automation_type: Optional[int] = None,
             custom_status: Optional[int] = None,
-            custom_preconds: Optional[str] = None
+            custom_preconds: Optional[str] = None,
+            labels: Optional[List[str]] = None
         ) -> Dict:
             """
             Add a new test case.
-            
+
             Args:
                 section_id: The ID of the section
                 title: The title of the test case
@@ -174,6 +175,7 @@ class TestRailMCPServer(FastMCP):
                 custom_automation_type: Automation type (1=Candidate, 2=Automated, etc.)
                 custom_status: Test status (1=Active, 3=Draft, etc.)
                 custom_preconds: Preconditions in HTML format
+                labels: A list of label names to assign to the case (optional, up to 10)
             """
             data = {'title': title}
             if type_id is not None:
@@ -200,6 +202,8 @@ class TestRailMCPServer(FastMCP):
                 data['custom_status'] = custom_status
             if custom_preconds is not None:
                 data['custom_preconds'] = custom_preconds
+            if labels is not None:
+                data['labels'] = labels
             return self.client.add_case(section_id, data)
         
         @self.tool("update_case", description="Update an existing test case")
@@ -217,11 +221,12 @@ class TestRailMCPServer(FastMCP):
             steps_separated: Optional[List[Dict[str, str]]] = None,
             custom_automation_type: Optional[int] = None,
             custom_status: Optional[int] = None,
-            custom_preconds: Optional[str] = None
+            custom_preconds: Optional[str] = None,
+            labels: Optional[List[str]] = None
         ) -> Dict:
             """
             Update an existing test case.
-            
+
             Args:
                 case_id: The ID of the test case
                 title: The title of the test case (optional)
@@ -244,6 +249,7 @@ class TestRailMCPServer(FastMCP):
                 custom_automation_type: Automation type (1=Candidate, 2=Automated, etc.)
                 custom_status: Test status (1=Active, 3=Draft, etc.)
                 custom_preconds: Preconditions in HTML format
+                labels: A list of label names to assign to the case (optional, up to 10)
             """
             data = {}
             if title is not None:
@@ -272,6 +278,8 @@ class TestRailMCPServer(FastMCP):
                 data['custom_status'] = custom_status
             if custom_preconds is not None:
                 data['custom_preconds'] = custom_preconds
+            if labels is not None:
+                data['labels'] = labels
             return self.client.update_case(case_id, data)
         
         @self.tool("delete_case", description="Delete a test case")
@@ -991,7 +999,75 @@ class TestRailMCPServer(FastMCP):
                 User object containing id, name, email, is_active, and role information.
             """
             return self.client.get_user_by_email(email)
-    
+
+        # Label tools
+        @self.tool("get_labels", description="Get all labels with pagination support")
+        def get_labels(
+            limit: Optional[int] = None,
+            offset: Optional[int] = None
+        ) -> Dict:
+            """
+            Get all labels.
+
+            Args:
+                limit: Maximum number of labels to return (optional)
+                offset: Offset for pagination (optional)
+
+            Returns:
+                Dictionary containing labels list and pagination metadata.
+            """
+            return self.client.get_labels(limit=limit, offset=offset)
+
+        @self.tool("get_label", description="Get a label by ID")
+        def get_label(label_id: int) -> Dict:
+            """
+            Get a label by ID.
+
+            Args:
+                label_id: The ID of the label
+
+            Returns:
+                Label object containing id, title, created_by, and created_on.
+            """
+            return self.client.get_label(label_id)
+
+        @self.tool("add_label", description="Add a new label")
+        def add_label(title: str) -> Dict:
+            """
+            Add a new label.
+
+            Args:
+                title: The name of the label
+
+            Returns:
+                The created label object.
+            """
+            return self.client.add_label({'title': title})
+
+        @self.tool("update_label", description="Update an existing label")
+        def update_label(label_id: int, title: str) -> Dict:
+            """
+            Update an existing label.
+
+            Args:
+                label_id: The ID of the label
+                title: The new name for the label
+
+            Returns:
+                The updated label object.
+            """
+            return self.client.update_label(label_id, {'title': title})
+
+        @self.tool("delete_label", description="Delete a label")
+        def delete_label(label_id: int) -> Dict:
+            """
+            Delete a label.
+
+            Args:
+                label_id: The ID of the label
+            """
+            return self.client.delete_label(label_id)
+
     def _register_resources(self):
         """Register all TestRail resources with the MCP server."""
         @self.resource("testrail://project/{project_id}")
